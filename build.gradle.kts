@@ -2,7 +2,7 @@ plugins {
     id("java")
 }
 
-group = "io.github.arkosammy12"
+group = "dev.aurakle"
 version = "1.0-SNAPSHOT"
 
 repositories {
