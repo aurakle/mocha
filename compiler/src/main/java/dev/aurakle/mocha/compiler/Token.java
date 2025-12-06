@@ -25,8 +25,8 @@ public record Token(Type type, String slice, LineColumn pos) {
         TYPE,
         ARROW_LEFT,
         ARROW_RIGHT,
-        OPEN_SCOPE,
-        CLOSE_SCOPE,
+        OPEN_BLOCK,
+        CLOSE_BLOCK,
         OPEN_PAREN,
         CLOSE_PAREN,
     }

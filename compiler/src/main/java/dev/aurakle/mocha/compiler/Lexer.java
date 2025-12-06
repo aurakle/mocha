@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import dev.aurakle.mocha.compiler.Token.Type;
+
 public class Lexer {
     private final String source;
     private int pos;
@@ -13,7 +15,7 @@ public class Lexer {
         this.source = source;
     }
 
-    private void addToken(Token.Type type, int startPos) {
+    private void addToken(Type type, int startPos) {
         result.add(new Token(type, source.substring(startPos, pos), LineColumn.from(source, startPos)));
     }
 
@@ -45,19 +47,19 @@ public class Lexer {
         return takeWhile(c -> Character.isAlphabetic(c) || c == '_');
     }
 
-    private Optional<Token.Type> tryWord() {
+    private Optional<Type> tryWord() {
         int p = pos;
-        Token.Type type = null;
+        Type type = null;
 
         type = switch (word()) {
-            case "if" -> Token.Type.IF;
-            case "then" -> Token.Type.THEN;
-            case "else" -> Token.Type.ELSE;
-            case "con" -> Token.Type.CON;
-            case "mut" -> Token.Type.MUT;
-            case "and" -> Token.Type.AND;
-            case "or" -> Token.Type.OR;
-            case "type" -> Token.Type.TYPE;
+            case "if" -> Type.IF;
+            case "then" -> Type.THEN;
+            case "else" -> Type.ELSE;
+            case "con" -> Type.CON;
+            case "mut" -> Type.MUT;
+            case "and" -> Type.AND;
+            case "or" -> Type.OR;
+            case "type" -> Type.TYPE;
             default -> null;
         };
 
@@ -68,9 +70,8 @@ public class Lexer {
         return Optional.ofNullable(type);
     }
 
-    private Optional<Token.Type> trySymbol() {
-        int p = pos;
-        Token.Type type = null;
+    private Optional<Type> trySymbol() {
+        Type type = null;
 
         if (!hasNext()) {
             return Optional.empty();
@@ -82,22 +83,38 @@ public class Lexer {
             char c2 = pop();
 
             type = switch ("" + c1 + c2) {
-                case "==" -> Token.Type.EQ;
-                //TODO: other symbols
+                case "==" -> Type.EQ;
+                case "!=" -> Type.NEQ;
+                case ">=" -> Type.GTEQ;
+                case "<=" -> Type.LTEQ;
                 default -> null;
             };
+
+            if (type == null) {
+                pos--;
+            }
         }
 
         if (type == null) {
             type = switch (c1) {
-                case '+' -> Token.Type.ADD;
-                //TODO: other symbols
+                case '+' -> Type.ADD;
+                case '-' -> Type.SUB;
+                case '*' -> Type.MUL;
+                case '/' -> Type.DIV;
+                case '^' -> Type.POW;
+                case '%' -> Type.REM;
+                case '>' -> Type.GT;
+                case '<' -> Type.LT;
+                case '{' -> Type.OPEN_BLOCK;
+                case '}' -> Type.CLOSE_BLOCK;
+                case '(' -> Type.OPEN_PAREN;
+                case ')' -> Type.CLOSE_PAREN;
                 default -> null;
             };
-        }
 
-        if (type == null) {
-            pos = p;
+            if (type == null) {
+                pos--;
+            }
         }
 
         return Optional.ofNullable(type);
